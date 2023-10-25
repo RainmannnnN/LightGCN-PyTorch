@@ -19,15 +19,16 @@ import model
 import multiprocessing
 from sklearn.metrics import roc_auc_score
 
-
 CORES = multiprocessing.cpu_count() // 2
 
 
 def BPR_train_original(dataset, recommend_model, loss_class, epoch, neg_k=1, w=None):
     Recmodel = recommend_model
     Recmodel.train()
+    # 这是py中的类型注解语法，显示表明bpr的类型是utils.BPRLoss,并且赋值为loss_class.
+    # 类似的还有x : int = 10
     bpr: utils.BPRLoss = loss_class
-    
+
     with timer(name="Sample"):
         S = utils.UniformSample_original(dataset)
     users = torch.Tensor(S[:, 0]).long()
@@ -55,8 +56,8 @@ def BPR_train_original(dataset, recommend_model, loss_class, epoch, neg_k=1, w=N
     time_info = timer.dict()
     timer.zero()
     return f"loss{aver_loss:.3f}-{time_info}"
-    
-    
+
+
 def test_one_batch(X):
     sorted_items = X[0].numpy()
     groundTrue = X[1]
@@ -66,12 +67,12 @@ def test_one_batch(X):
         ret = utils.RecallPrecision_ATk(groundTrue, r, k)
         pre.append(ret['precision'])
         recall.append(ret['recall'])
-        ndcg.append(utils.NDCGatK_r(groundTrue,r,k))
-    return {'recall':np.array(recall), 
-            'precision':np.array(pre), 
-            'ndcg':np.array(ndcg)}
-        
-            
+        ndcg.append(utils.NDCGatK_r(groundTrue, r, k))
+    return {'recall': np.array(recall),
+            'precision': np.array(pre),
+            'ndcg': np.array(ndcg)}
+
+
 def Test(dataset, Recmodel, epoch, w=None, multicore=0):
     u_batch_size = world.config['test_u_batch_size']
     dataset: utils.BasicDataset
@@ -104,13 +105,13 @@ def Test(dataset, Recmodel, epoch, w=None, multicore=0):
             batch_users_gpu = batch_users_gpu.to(world.device)
 
             rating = Recmodel.getUsersRating(batch_users_gpu)
-            #rating = rating.cpu()
+            # rating = rating.cpu()
             exclude_index = []
             exclude_items = []
             for range_i, items in enumerate(allPos):
                 exclude_index.extend([range_i] * len(items))
                 exclude_items.extend(items)
-            rating[exclude_index, exclude_items] = -(1<<10)
+            rating[exclude_index, exclude_items] = -(1 << 10)
             _, rating_K = torch.topk(rating, k=max_K)
             rating = rating.cpu().numpy()
             # aucs = [ 
@@ -131,7 +132,7 @@ def Test(dataset, Recmodel, epoch, w=None, multicore=0):
             pre_results = []
             for x in X:
                 pre_results.append(test_one_batch(x))
-        scale = float(u_batch_size/len(users))
+        scale = float(u_batch_size / len(users))
         for result in pre_results:
             results['recall'] += result['recall']
             results['precision'] += result['precision']

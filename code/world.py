@@ -4,6 +4,7 @@ Pytorch Implementation of LightGCN in
 Xiangnan He et al. LightGCN: Simplifying and Powering Graph Convolution Network for Recommendation
 
 @author: Jianbai Ye (gusye@mail.ustc.edu.cn)
+这像是一个全局的设置
 '''
 
 import os
@@ -22,22 +23,21 @@ DATA_PATH = join(ROOT_PATH, 'data')
 BOARD_PATH = join(CODE_PATH, 'runs')
 FILE_PATH = join(CODE_PATH, 'checkpoints')
 import sys
-sys.path.append(join(CODE_PATH, 'sources'))
 
+sys.path.append(join(CODE_PATH, 'sources'))
 
 if not os.path.exists(FILE_PATH):
     os.makedirs(FILE_PATH, exist_ok=True)
 
-
-config = {}
-all_dataset = ['lastfm', 'gowalla', 'yelp2018', 'amazon-book']
-all_models  = ['mf', 'lgn']
+config = {}  # 创建一个config字典，把args中的参数放进配置文件中
+all_dataset = ['lastfm', 'gowalla', 'yelp2018', 'amazon-book']  # 允许的全部数据集，如果需要加入新数据集要在这里添加
+all_models = ['mf', 'lgn']  # 允许的全部模型
 # config['batch_size'] = 4096
 config['bpr_batch_size'] = args.bpr_batch
 config['latent_dim_rec'] = args.recdim
-config['lightGCN_n_layers']= args.layer
+config['lightGCN_n_layers'] = args.layer
 config['dropout'] = args.dropout
-config['keep_prob']  = args.keepprob
+config['keep_prob'] = args.keepprob
 config['A_n_fold'] = args.a_fold
 config['test_u_batch_size'] = args.testbatch
 config['multicore'] = args.multicore
@@ -59,9 +59,6 @@ if dataset not in all_dataset:
 if model_name not in all_models:
     raise NotImplementedError(f"Haven't supported {model_name} yet!, try {all_models}")
 
-
-
-
 TRAIN_epochs = args.epochs
 LOAD = args.load
 PATH = args.path
@@ -70,12 +67,13 @@ tensorboard = args.tensorboard
 comment = args.comment
 # let pandas shut up
 from warnings import simplefilter
+
 simplefilter(action="ignore", category=FutureWarning)
 
 
-
-def cprint(words : str):
+def cprint(words: str):
     print(f"\033[0;30;43m{words}\033[0m")
+
 
 logo = r"""
 ██╗      ██████╗ ███╗   ██╗
